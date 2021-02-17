@@ -2,8 +2,8 @@ const { execSync, exec } = require("child_process");
 const Path = require("path");
 const os = require("os");
 
-const LIBPATHWS = Path.join(process.resourcesPath, "./app/libs/iTunesBridge/iTunesBridgeWS.js");
-const LIBPATHOS = Path.join(process.resourcesPath, "./app/libs/iTunesBridge/iTunesBridgeOA.js");
+const LIBPATHWS = process.env.NODE_ENV === "dev" ? Path.join(__dirname, "./iTunesBridgeWS.js") : Path.join(process.resourcesPath, "./app/libs/iTunesBridge/iTunesBridgeWS.js");
+const LIBPATHOS = process.env.NODE_ENV === "dev" ? Path.join(__dirname, "./iTunesBridgeOA.js") : Path.join(process.resourcesPath, "./app/libs/iTunesBridge/iTunesBridgeOA.js");
 
 class iTunes {
   constructor() {

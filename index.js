@@ -1,24 +1,19 @@
 const { app, BrowserWindow } = require('electron');
-const { execSync } = require("child_process");
 const client = require("discord-rich-presence")('749704287176622170');
 
 const iTunes = require("./libs/iTunesBridge/iTunesBridge");
+const iTunesApp = new iTunes();
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
-let port = 65516;
-
-let screenSize = {
-  width: 400,
-  height: 300
-};
+let startDate = new Date();
 
 function createWindow () {
   // Create the browser window.
   win = new BrowserWindow({
-    width: screenSize.width,
-    height: screenSize.height,
+    width: 400,
+    height: 150,
     webPreferences: {
       nodeIntegration: true
     },
@@ -37,12 +32,6 @@ function createWindow () {
     // when you should delete the corresponding element.
     win = null
   });
-}
-
-function loadUrl() {
-  win.loadURL('http://localhost:' + port + '/');
-
-  setupRPC();
 }
 
 // This method will be called when Electron has finished
@@ -73,38 +62,20 @@ app.on('certificate-error', function(event, webContents, url, error,
       callback(true);
 });
 
-/* RPC BELOW */
+function loadUrl() {
+  win.loadURL(`file://${__dirname}/index.html`);
 
-const iTunesApp = new iTunes();
-let RPCInterval = 0;
-let lastSong = "";
-let startDate = new Date();
-
-function setupRPC() {
-  updatePresence();
-  RPCInterval = setInterval(updatePresence, 1000);
+  setInterval(updatePresence, 1000);
 }
 
 function updatePresence() {
   const currentSong = iTunesApp.getCurrentSong();
-  let state = currentSong.state;
-
-  const fullTitle = `${currentSong.artist || "No Artist"} - ${currentSong.name}`;
-  
-  if (state == "Playing" && (fullTitle !== lastSong || !lastSong)) {
-    startDate = new Date();
-    lastSong = `${currentSong.artist || "No Artist"} - ${currentSong.name}`;
-    startDate.setSeconds(new Date().getSeconds() - parseInt(currentSong.elapsed));
-  }
 
   client.updatePresence({
-    state: (state == "Playing") ? `by ${currentSong.artist || "No Artist"}` : state,
-    details: currentSong.name,
-    startTimestamp: (state == "Playing") ? startDate.getTime() : Date.now(),
     largeImageKey: 'music',
-    smallImageKey: (state == "Playing") ? "pause" : "play",
-    smallImageText: state,
-    largeImageText: (state == "Playing") ? `${fullTitle}` : "Idling",
+    details: currentSong.name,
+    state: currentSong.artist,
+    startTimestamp: startDate.getTime(),
     instance: true,
   });
 }

@@ -74,7 +74,7 @@ function updatePresence() {
   client.updatePresence({
     largeImageKey: 'music',
     details: currentSong.name,
-    state: currentSong.artist,
+    state: `${currentSong.artist} ― ${currentSong.album}`,
     startTimestamp: startDate.getTime(),
     instance: true,
   });
